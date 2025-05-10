@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
     <title>PNG2PRG Web Converter</title>
     <style>
         body {
@@ -190,7 +187,7 @@
 
         <div>
             <label for="imageUrl">Image URL:</label>
-            <input type="text" id="imageUrl" placeholder="https://example.com/image.png" required>
+            <input type="text" id="imageUrl" placeholder="https://example.com/image.png">
         </div>
 
         <div class="separator-text">
@@ -341,14 +338,6 @@
                     No Guess
                 </label>
                 <div class="option-help">Disable automatic color guessing</div>
-            </div>
-
-            <div class="checkbox-option">
-                <label>
-                    <input type="checkbox" id="alternativeFade">
-                    Alternative Fade
-                </label>
-                <div class="option-help">Use alternative fade effect</div>
             </div>
 
             <div class="checkbox-option">
@@ -605,7 +594,6 @@
 
                     // Display Options
                     display: document.getElementById('display').checked,
-                    alternativeFade: document.getElementById('alternativeFade').checked,
                     noFade: document.getElementById('noFade').checked,
                     noAnimation: document.getElementById('noAnimation').checked,
                     frameDelay: document.getElementById('frameDelay').value !== '' ?
@@ -625,7 +613,6 @@
                 try {
                     let result;
 
-                    // Call the WebAssembly function based on whether we have URL or image data
                     if (imageUrl) {
                         // URL-based conversion
                         console.log("Converting from URL:", imageUrl);
