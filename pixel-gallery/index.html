@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Art Gallery</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a1a;
+      color: #e0e0e0;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      text-align: center;
+      padding: 40px 0;
+      border-bottom: 2px solid #333;
+      margin-bottom: 40px;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .subtitle {
+      color: #888;
+      font-size: 1rem;
+    }
+    
+    .navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding: 15px;
+      background: #252525;
+      border-radius: 8px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .nav-buttons button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+    
+    .nav-buttons button:hover:not(:disabled) {
+      background: #764ba2;
+    }
+    
+    .nav-buttons button:disabled {
+      background: #444;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+    
+    .image-counter {
+      color: #888;
+      font-size: 0.9rem;
+    }
+    
+    .main-image-section {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    
+    .main-image-container {
+      background: #252525;
+      padding: 30px;
+      border-radius: 12px;
+      display: inline-block;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    .main-image {
+      max-width: 100%;
+      height: auto;
+      max-height: 600px;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      border: 3px solid #333;
+      border-radius: 4px;
+    }
+    
+    .image-title {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      color: #e0e0e0;
+      word-break: break-all;
+    }
+    
+    .similar-section {
+      margin-top: 40px;
+    }
+    
+    .similar-title {
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+      text-align: center;
+      color: #667eea;
+    }
+    
+    .similar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    
+    .similar-card {
+      background: #252525;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 2px solid transparent;
+    }
+    
+    .similar-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+      border-color: #667eea;
+    }
+    
+    .similar-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: contain;
+      background: #1a1a1a;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      padding: 10px;
+    }
+    
+    .similar-info {
+      padding: 15px;
+    }
+    
+    .similar-filename {
+      font-size: 0.9rem;
+      color: #e0e0e0;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+    
+    .similarity-score {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #888;
+    }
+    
+    .score-bar {
+      flex-grow: 1;
+      height: 6px;
+      background: #333;
+      border-radius: 3px;
+      margin: 0 10px;
+      overflow: hidden;
+    }
+    
+    .score-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      transition: width 0.3s;
+    }
+    
+    .breakdown {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+      font-size: 0.75rem;
+    }
+    
+    .breakdown-item {
+      background: #1a1a1a;
+      padding: 3px 8px;
+      border-radius: 3px;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 100px 20px;
+      font-size: 1.5rem;
+      color: #667eea;
+    }
+    
+    .error {
+      text-align: center;
+      padding: 100px 20px;
+      color: #ff6b6b;
+    }
+    
+    .back-to-gallery {
+      text-align: center;
+      margin-top: 40px;
+    }
+    
+    .back-to-gallery a {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      padding: 12px 30px;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    
+    .back-to-gallery a:hover {
+      background: #764ba2;
+    }
+    
+    @media (max-width: 768px) {
+      .similar-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+      
+      .similar-card img {
+        height: 150px;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎨 Pixel Art Gallery</h1>
+      <p class="subtitle">Explore similar artworks</p>
+    </header>
+    
+    <div id="app">
+      <div class="loading">Loading gallery...</div>
+    </div>
+  </div>
+
+  <script>
+    // Configuration - adjust these paths as needed
+    const CONFIG = {
+      similarityFile: './similarity-data.json',
+      imagesFolder: './images/',
+      similarCount: 5
+    };
+    
+    let similarityData = {};
+    let allImages = [];
+    let currentIndex = 0;
+    
+    async function loadGallery() {
+      try {
+        // Load similarity data
+        const response = await fetch(CONFIG.similarityFile);
+        if (!response.ok) {
+          throw new Error('Could not load similarity-data.json. Make sure it exists in the same directory as this HTML file.');
+        }
+        similarityData = await response.json();
+        
+        // Extract all image filenames from the similarity data
+        allImages = Object.keys(similarityData).sort();
+        
+        if (allImages.length === 0) {
+          document.getElementById('app').innerHTML = '<div class="error">No images found in similarity data</div>';
+          return;
+        }
+        
+        // Check URL for specific image
+        const urlParams = new URLSearchParams(window.location.search);
+        const requestedImage = urlParams.get('image');
+        if (requestedImage && allImages.includes(requestedImage)) {
+          currentIndex = allImages.indexOf(requestedImage);
+        }
+        
+        displayImage(allImages[currentIndex]);
+      } catch (err) {
+        document.getElementById('app').innerHTML = `
+          <div class="error">
+            <h2>Error loading gallery</h2>
+            <p>${err.message}</p>
+            <p style="margin-top: 20px; font-size: 0.9rem;">
+              Make sure you have:<br>
+              • similarity-data.json in the same folder<br>
+              • Images in the ./images/ folder<br>
+              • Opened this via a web server (not file://)
+            </p>
+          </div>
+        `;
+      }
+    }
+    
+    function displayImage(filename) {
+      const data = similarityData[filename];
+      if (!data) {
+        document.getElementById('app').innerHTML = '<div class="error">Image data not found</div>';
+        return;
+      }
+      
+      // Update URL without reload
+      const url = new URL(window.location);
+      url.searchParams.set('image', filename);
+      window.history.pushState({}, '', url);
+      
+      // Get similar images (limited to CONFIG.similarCount)
+      const similar = data.similar.slice(0, CONFIG.similarCount);
+      
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <div class="navigation">
+          <div class="nav-buttons">
+            <button onclick="previousImage()" ${currentIndex === 0 ? 'disabled' : ''}>← Previous</button>
+            <button onclick="nextImage()" ${currentIndex === allImages.length - 1 ? 'disabled' : ''}>Next →</button>
+          </div>
+          <div class="image-counter">
+            ${currentIndex + 1} / ${allImages.length}
+          </div>
+        </div>
+        
+        <div class="main-image-section">
+          <div class="main-image-container">
+            <img src="${CONFIG.imagesFolder}${encodeURIComponent(filename)}" alt="${filename}" class="main-image" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22><rect width=%22400%22 height=%22300%22 fill=%22%23333%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22 font-family=%22sans-serif%22>Image not found</text></svg>'">
+          </div>
+          <h2 class="image-title">${filename}</h2>
+        </div>
+        
+        <div class="similar-section">
+          <h3 class="similar-title">Similar Artworks</h3>
+          ${similar.length > 0 ? `
+            <div class="similar-grid">
+              ${similar.map(sim => `
+                <div class="similar-card" onclick="goToImage('${sim.file.replace(/'/g, "\\'")}')">
+                  <img src="${CONFIG.imagesFolder}${encodeURIComponent(sim.file)}" alt="${sim.file}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect width=%22200%22 height=%22200%22 fill=%22%23333%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23999%22 font-family=%22sans-serif%22 font-size=%2212%22>Not found</text></svg>'">
+                  <div class="similar-info">
+                    <div class="similar-filename">${sim.file}</div>
+                    <div class="similarity-score">
+                      <span>${sim.score}%</span>
+                      <div class="score-bar">
+                        <div class="score-fill" style="width: ${sim.score}%"></div>
+                      </div>
+                    </div>
+                    ${sim.breakdown ? `
+                      <div class="breakdown">
+                        <span class="breakdown-item">🎨 ${sim.breakdown.color}</span>
+                        <span class="breakdown-item">🏗️ ${sim.breakdown.structure}</span>
+                        <span class="breakdown-item">✏️ ${sim.breakdown.edge}</span>
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : '<p style="text-align: center; color: #888;">No similar images found</p>'}
+        </div>
+      `;
+    }
+    
+    function goToImage(filename) {
+      currentIndex = allImages.indexOf(filename);
+      if (currentIndex === -1) currentIndex = 0;
+      displayImage(allImages[currentIndex]);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    function previousImage() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        displayImage(allImages[currentIndex]);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+    
+    function nextImage() {
+      if (currentIndex < allImages.length - 1) {
+        currentIndex++;
+        displayImage(allImages[currentIndex]);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') previousImage();
+      if (e.key === 'ArrowRight') nextImage();
+    });
+    
+    // Load gallery on page load
+    loadGallery();
+  </script>
+</body>
+</html>
