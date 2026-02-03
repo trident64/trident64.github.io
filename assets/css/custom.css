@@ -1,0 +1,99 @@
+.post-content img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+  height: auto;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+/* Regular centered images */
+.inner img {
+  display: block;
+  margin: 20px auto;
+  max-width: 100%;
+  height: auto;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: transform 0.2s ease;
+}
+
+/* Image gallery for side-by-side images */
+.image-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.image-gallery img {
+  display: inline-block;
+  margin: 0;
+  max-width: calc(50% - 10px); /* For two images side-by-side */
+  object-fit: cover;
+  vertical-align: middle;
+}
+
+/* For three images side-by-side */
+.image-gallery.three-images img {
+  max-width: calc(33% - 10px);
+}
+
+.inner img:hover {
+  transform: scale(1.02);
+}
+
+/* Lightbox styles */
+.lightbox {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+}
+
+.lightbox.active {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  transform: scale(1.2); /* This zooms the image */
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+  z-index: 10000;
+}
+
+/* Zoom controls */
+.lightbox-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 24px;
+  z-index: 10000;
+}
+
+.lightbox-controls span {
+  margin: 0 10px;
+  cursor: pointer;
+}

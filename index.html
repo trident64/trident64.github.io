@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<!--
+	Forty by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+
+<head>
+	<title>Trident's C64 Demo Details</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<!--[if lte IE 8]><script src="/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/assets/css/main.css" />
+	<!--[if lte IE 9]><link rel="stylesheet" href="/assets/css/ie9.css" /><![endif]-->
+	<!--[if lte IE 8]><link rel="stylesheet" href="/assets/css/ie8.css" /><![endif]-->
+	<link rel="stylesheet" href="/assets/css/custom.css">
+	<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Create lightbox
+  const lightbox = document.createElement('div');
+  lightbox.className = 'lightbox';
+  const lightboxImg = document.createElement('img');
+
+  const closeBtn = document.createElement('div');
+  closeBtn.className = 'lightbox-close';
+  closeBtn.innerHTML = '×';
+
+  const controls = document.createElement('div');
+  controls.className = 'lightbox-controls';
+  controls.innerHTML = '<span class="zoom-in">+</span><span class="zoom-out">−</span>';
+
+  lightbox.appendChild(lightboxImg);
+  lightbox.appendChild(closeBtn);
+  lightbox.appendChild(controls);
+  document.body.appendChild(lightbox);
+
+  // Current zoom level
+  let currentZoom = 3; // Default zoom level
+  const maxZoom = 3;   // Maximum zoom level
+
+  // Add click events to all images
+  const images = document.querySelectorAll('.inner img:not(.lightbox img)');
+  images.forEach(function(img) {
+    img.addEventListener('click', function() {
+      lightboxImg.src = this.src;
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      currentZoom = maxZoom; // Start at maximum zoom
+      lightboxImg.style.transform = `scale(${currentZoom})`;
+    });
+  });
+
+  // Zoom controls
+  document.querySelector('.zoom-in').addEventListener('click', function(e) {
+    e.stopPropagation();
+    currentZoom += 0.2;
+    if (currentZoom > 3) currentZoom = 3;
+    lightboxImg.style.transform = `scale(${currentZoom})`;
+  });
+
+  document.querySelector('.zoom-out').addEventListener('click', function(e) {
+    e.stopPropagation();
+    currentZoom -= 0.2;
+    if (currentZoom < 0.5) currentZoom = 0.5;
+    lightboxImg.style.transform = `scale(${currentZoom})`;
+  });
+
+  // Close lightbox on click
+  lightbox.addEventListener('click', function() {
+    this.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  // Prevent clicks on the image from closing the lightbox
+  lightboxImg.addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
+
+  // Close on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+      lightbox.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+});
+</script>
+</head>
+
+
+<body>
+
+    <!-- Wrapper -->
+<div id="wrapper">
+
+<!-- Header -->
+<header id="header" class="alt">
+	<a href="/" class="logo"><strong>Trident's C64 Demo Details</strong> <span></span></a>
+	<nav>
+		<a href="#menu">Menu</a>
+	</nav>
+</header>
+
+<!-- Menu -->
+<nav id="menu">
+	<ul class="links">
+        
+		
+		    
+		
+	</ul>
+	<ul class="actions vertical">
+		<li><a href="/" class="button special fit">Home</a></li>
+	</ul>
+</nav>
+
+
+    <!-- Banner -->
+    <section id="" class="major">
+        <div class="inner">
+            <header class="major">
+                <h1>Trident's Commodore 64 Demo Details</h1>
+            </header>
+        </div>
+    </section>
+
+    <!-- Main -->
+    <div id="main">
+
+        <!-- One -->
+        
+<section id="one" class="tiles">
+  
+  <article>
+    <span class="image">
+      <img src="/assets/images/unexpanded-border-scroll/intro-screenshot.png" alt="Multicolor Ghostbyte Shine-through: How to Make an Unexpanded C64 Border Scroll" />
+    </span>
+    <header class="major">
+      <h3><a href="/ghostbyte-shinethrough/" class="link">Multicolor Ghostbyte Shine-through: How to Make an Unexpanded C64 Border Scroll</a></h3>
+      <p></p>
+    </header>
+  </article>
+  
+</section>
+
+
+    </div>
+
+    <!-- Footer -->
+	<footer id="footer">
+		<div class="inner">
+		</div>
+	</footer>
+
+</div>
+
+<!-- Scripts -->
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/jquery.scrolly.min.js"></script>
+	<script src="/assets/js/jquery.scrollex.min.js"></script>
+	<script src="/assets/js/skel.min.js"></script>
+	<script src="/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/assets/js/main.js"></script>
+
+
+</body>
+
+</html>

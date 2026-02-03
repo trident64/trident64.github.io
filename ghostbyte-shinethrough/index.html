@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<!--
+	Forty by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+
+<head>
+	<title>Multicolor Ghostbyte Shine-through: How to Make an Unexpanded C64 Border Scroll | Trident's C64 Demo Details</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<!--[if lte IE 8]><script src="/assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="/assets/css/main.css" />
+	<!--[if lte IE 9]><link rel="stylesheet" href="/assets/css/ie9.css" /><![endif]-->
+	<!--[if lte IE 8]><link rel="stylesheet" href="/assets/css/ie8.css" /><![endif]-->
+	<link rel="stylesheet" href="/assets/css/custom.css">
+	<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Create lightbox
+  const lightbox = document.createElement('div');
+  lightbox.className = 'lightbox';
+  const lightboxImg = document.createElement('img');
+
+  const closeBtn = document.createElement('div');
+  closeBtn.className = 'lightbox-close';
+  closeBtn.innerHTML = '×';
+
+  const controls = document.createElement('div');
+  controls.className = 'lightbox-controls';
+  controls.innerHTML = '<span class="zoom-in">+</span><span class="zoom-out">−</span>';
+
+  lightbox.appendChild(lightboxImg);
+  lightbox.appendChild(closeBtn);
+  lightbox.appendChild(controls);
+  document.body.appendChild(lightbox);
+
+  // Current zoom level
+  let currentZoom = 3; // Default zoom level
+  const maxZoom = 3;   // Maximum zoom level
+
+  // Add click events to all images
+  const images = document.querySelectorAll('.inner img:not(.lightbox img)');
+  images.forEach(function(img) {
+    img.addEventListener('click', function() {
+      lightboxImg.src = this.src;
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      currentZoom = maxZoom; // Start at maximum zoom
+      lightboxImg.style.transform = `scale(${currentZoom})`;
+    });
+  });
+
+  // Zoom controls
+  document.querySelector('.zoom-in').addEventListener('click', function(e) {
+    e.stopPropagation();
+    currentZoom += 0.2;
+    if (currentZoom > 3) currentZoom = 3;
+    lightboxImg.style.transform = `scale(${currentZoom})`;
+  });
+
+  document.querySelector('.zoom-out').addEventListener('click', function(e) {
+    e.stopPropagation();
+    currentZoom -= 0.2;
+    if (currentZoom < 0.5) currentZoom = 0.5;
+    lightboxImg.style.transform = `scale(${currentZoom})`;
+  });
+
+  // Close lightbox on click
+  lightbox.addEventListener('click', function() {
+    this.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  // Prevent clicks on the image from closing the lightbox
+  lightboxImg.addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
+
+  // Close on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+      lightbox.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+});
+</script>
+</head>
+
+
+<body>
+
+    <!-- Wrapper -->
+<div id="wrapper">
+
+<!-- Header -->
+<header id="header">
+	<a href="/" class="logo"><strong>Trident's C64 Demo Details</strong> <span></span></a>
+	<nav>
+		<a href="#menu">Menu</a>
+	</nav>
+</header>
+
+<!-- Menu -->
+<nav id="menu">
+	<ul class="links">
+        
+		
+		    
+		
+	</ul>
+	<ul class="actions vertical">
+		<li><a href="/" class="button special fit">Home</a></li>
+	</ul>
+</nav>
+
+
+
+<!-- Main -->
+<div id="main" class="alt">
+
+<!-- One -->
+<section id="one">
+	<div class="inner">
+		<header style="display: flex; align-items: center; justify-content: flex-start; gap: 2em; width: 100%;">
+			<div style="flex: 2 1 0; min-width: 0;">
+				<h1 style="margin-bottom: 0; font-size: 2.5em;">Multicolor Ghostbyte Shine-through: How to Make an Unexpanded C64 Border Scroll</h1>
+				<p style="color: rgba(255, 255, 255, 0.5); margin-top: 0.5em; margin-bottom: 0;">
+					<span>Written by Trident</span> .:•:. <time datetime="2023-01-20T10:00:00+00:00">January 20, 2023</time>
+				</p>
+			</div>
+			
+			<span class="image main" style="flex: 1 1 0; display: flex; align-items: flex-start; justify-content: flex-end;">
+				<img src="/assets/images/unexpanded-border-scroll/intro-screenshot.png" alt="" style="height:auto; display:block; margin:0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" />
+			</span>
+			
+		</header>
+		<p>The Commodore 64 intro <a href="https://csdb.dk/release/?id=228365">Orbit Untold</a> by Fairlight from 2023 (<a href="https://youtu.be/tiMKM1toYTs">youtube link</a>) features a border scroll that looks unexpanded, despite
+being placed in the lower border and despite covering the entire visible screen
+area. This document explains how this effect is achieved with a technique we call multicolor ghostbyte shine-through.</p>
+
+<h2 id="background">Background</h2>
+
+<p>On the Commodore 64, there are a few ways to produce graphics in the border
+area. Two the most commonly used are sprites and ghostbytes.</p>
+
+<p>Sprites are very flexible in terms of what type of graphics we can produce,
+including multicolor graphics. But they are limited to 8 sprites per line and their
+width is limited to either 24 pixels or 48 expanded pixels per sprite. With
+unexpanded sprites, we can get 8 * 24 = 192 pixels wide graphics. This
+will cover less than 2/3 of the visible screen area. With expanded
+sprites, we can fill the entire visible area, but our pixels will twice as
+wide due to the need for expanded sprites.</p>
+
+<p>The ghostbyte is extremely restricted. It provides 8 bits of black pixels that
+are repeated every 8 pixels on in the visible screen area when the border is
+opened. Also, ghostbytes can only be used in the upper and lower borders and
+cannot be used in the side borders.</p>
+
+<p>The three pictures below illustrate how sprites and ghostbytes work. The
+leftmost picture shows how the C64 screen looks by default, with all borders
+intact. The middle picture shows all 8 sprites in the lower border, with both
+the lower and upper borders removed. The sprites are placed adjacent to each
+other and expanded in the X direction so that they cover the entire width of
+the border area. The third picture shows the effect of the ghostbyte. In this
+case, the ghostbyte is set to <code class="language-plaintext highlighter-rouge">$01</code>, resulting in one-pixel wide bands across
+the upper and lower borders.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">C64 screen with borders</th>
+      <th style="text-align: center">Sprites in lower border</th>
+      <th style="text-align: center">Ghostbyte $01 in upper and lower border</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><img src="/assets/images/unexpanded-border-scroll/c64.png" alt="C64 screen with borders" /></td>
+      <td style="text-align: center"><img src="/assets/images/unexpanded-border-scroll/sprite.png" alt="Sprite in lower border" /></td>
+      <td style="text-align: center"><img src="/assets/images/unexpanded-border-scroll/ghostbyte.png" alt="Ghostbyte in upper and lower border" /></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>If we combine sprites and ghostbytes, we can produce what looks like
+unexpanded graphics in the lower and upper borders.</p>
+
+<h3 id="a-first-approach-ghostbyte-masking">A First Approach: Ghostbyte Masking</h3>
+
+<p>The simplest way to produce what appears to be an unexpanded scroll in the
+upper or lower border is to use ghostbyte masking. This involves setting the
+sprite priority lower than the ghostbyte priority and use the ghostbyte to
+mask out some of the pixels of the expanded sprites.</p>
+
+<p>This makes it possible to produce single-pixel width graphics, as long as the
+pixels are positioned under the ghostbyte mask.</p>
+
+<p>The pictures below shows how ghostbyte masking works to make an expanded
+letter <code class="language-plaintext highlighter-rouge">A</code> appear to be non-expanded. The <code class="language-plaintext highlighter-rouge">A</code> consists of 4 expanded single
+color pixels, that result in an 8 pixel wide <code class="language-plaintext highlighter-rouge">A</code>.</p>
+
+<p><img src="/assets/images/unexpanded-border-scroll/a-without-mask.png" alt="Expanded A" title="A 4 pixel wide A that has been expanded into an 8 pixel wide character" /></p>
+
+<p>This <code class="language-plaintext highlighter-rouge">A</code> is visibly expanded.</p>
+
+<p>By setting the sprite priority so that the sprite is behind the ghostbyte and by
+setting the ghostbyte to the pixel pattern <code class="language-plaintext highlighter-rouge">$81</code>, we end up with the <code class="language-plaintext highlighter-rouge">A</code>
+below.</p>
+
+<p><img src="/assets/images/unexpanded-border-scroll/a-with-mask.png" alt="Expanded A that does not appear to be expanded" title="A 4 pixel wide A that has been expanded into an 8 pixel wide character, and ghostbyte masking added" /></p>
+
+<p>This <code class="language-plaintext highlighter-rouge">A</code> now looks like it is unexpanded.</p>
+
+<p>This technique has often been used to make border scrolls look like they are
+unexpanded. Two examples are Rash’s part in <a href="https://csdb.dk/release/?id=3218">My, Oh My</a> by Light from 1991 (<a href="https://youtu.be/DUDWW_cRXt4?t=844">youtube link</a>) and Graham’s border
+scroll in the 1998 Crest and Oxyron production <a href="https://csdb.dk/release/?id=11653">Coma Job</a> (<a href="https://youtu.be/MPc8_xg_NZg?t=97">youtube link</a>).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">My, Oh My (1991)</th>
+      <th style="text-align: center">Coma Job (1998)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><img src="/assets/images/unexpanded-border-scroll/light-my-oh-my-1991.png" alt="My Oh My" /></td>
+      <td style="text-align: center"><img src="/assets/images/unexpanded-border-scroll/crest-oxyron-coma-job-1998.png" alt="Coma Job" /></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The My Oh My scroller shows some of the limitations of this technique: pixels
+that are in the middle of a letter cannot easily be masked, leading to
+an awkward looking <code class="language-plaintext highlighter-rouge">M</code> character. Graham’s scroller overcomes this by using a
+more appropriate font, as well as a changing background color that makes the
+problems less visible.</p>
+
+<p>The color of the ghostbyte mask is restricted to the color black, because the
+ghostbyte is always black.</p>
+
+<p>The ghostbyte masking trick is very commonly used in demos from the 1990s era.</p>
+
+<p>In <a href="https://csdb.dk/release/?id=2554">Crest Avantgarde</a> from 1992, Crossbow and Vision of Crest took the ghostbyte masking trick one step further to create what appears to be a fully unexpanded upscroll (<a href="https://youtu.be/Ze45K_f5YWo?t=342">youtube link</a>). In this case, they change the ghostbyte throughout the screen and use an additional black sprite to cover the side border area. This is evident if we change the background color from black to red.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Crest Avantgarde (1992)</th>
+      <th style="text-align: center">The trick revealed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><img src="/assets/images/unexpanded-border-scroll/crest-avantgarde-1992.png" alt="Crest Avantgarde" /></td>
+      <td style="text-align: center"><img src="/assets/images/unexpanded-border-scroll/crest-avantgarde-1992-red-background.png" alt="Crest Avantgarde" /></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="multicolor-ghostbyte-shine-through">Multicolor Ghostbyte Shine-through</h3>
+
+<p>Multicolor ghostbyte shine-through - the trick used in Orbit Untold - is similar
+to ghostbyte masking, but with a few key differences. Instead of using the
+ghostbyte to mask the sprite pixels, we create holes in the pixel data and
+let the ghostbyte and background shine through. By crafting specific patterns
+with the ghostbyte, we can achieve complex graphics that appear to be
+unexpanded even if the sprites are expanded.</p>
+
+<p>There are a couple of more differences between multicolor ghostbyte shine-through and
+ghostbyte masking:</p>
+<ul>
+  <li>the ghostbyte is underneath the sprites, not on top of them</li>
+  <li>the ghostbyte is typically changed every raster line</li>
+  <li>we use multicolor to be able to selectively decide where our ghostbytes will shine through</li>
+</ul>
+
+<p>The main drawback of multicolor ghostbyte shine-through over ghostbyte masking
+is that since we are using multicolor, each pixel is now 4 pixels wide.</p>
+
+<p>This trick was probably first found by Crossbow and used in the 1992 Crest
+demo <a href="https://csdb.dk/release/?id=2554">Crest Avantgarde</a> (<a href="https://youtu.be/Ze45K_f5YWo?t=1153">youtube link</a>). HCL then used it
+in <a href="https://csdb.dk/release/?id=7580">Totally Stoned 2</a> by Booze Design from
+1993 (<a href="https://youtu.be/s7DEU-7u7gw?t=1383">youtube link</a>). Cruzer / Camelot made excellent use of the trick
+in his <a href="https://csdb.dk/release/?id=171924">GULBData</a> intro from 2018.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Crest Avantgarde (1992)</th>
+      <th style="text-align: center">Totally Stoned 2 (1993)</th>
+      <th style="text-align: center">GULBData (2018)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><img src="/assets/images/unexpanded-border-scroll/crest-avantgarde-1992-gulb.png" alt="Crest Avantgarde" /></td>
+      <td style="text-align: center"><img src="/assets/images/unexpanded-border-scroll/bd-totally-stoned-1992.png" alt="Totally Stoned 2" /></td>
+      <td style="text-align: center"><img src="/assets/images/unexpanded-border-scroll/camelot-gulbdata-2018.png" alt="GULBdata" /></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>There are probably several other examples of this trick being used in demos,
+but it does not seem to be very widely used. Possibly because it is so hard
+to figure out how it is supposed to be done. Myself, I was not
+able to figure out how this was done when I saw Crest Avantgarde and Totally
+Stoned 2 back in 1992-1993. It wasn’t until seeing Cruzer’s GULBData intro it
+finally clicked for me.</p>
+
+<h3 id="making-it-work-a-case-study">Making it Work: a Case Study</h3>
+
+<p>We arrange the ghostbytes, which we change each rasterline, into the pattern
+below. The black pixels are the ghostbyte pixels, and the gray pixels are the
+background ($d021) color.</p>
+
+<p><img src="/assets/images/unexpanded-border-scroll/multicolor-ghostbytes.png" alt="Ghostbyte pattern" /></p>
+
+<p>We can then draw an upper case <code class="language-plaintext highlighter-rouge">A</code> in a way where those ghostbyte pixels will shine
+through on specific locations. To make the ghostbyte pattern shine through,
+we use multicolor <code class="language-plaintext highlighter-rouge">00</code> for those pixels. We set one of the other multicolors to the same color
+as the background color, and set a third multicolor to black. The black color is
+used to make it blend together with the black ghostbyte pixels.</p>
+
+<p>In the picture below, the blue pixels correspond to the <code class="language-plaintext highlighter-rouge">00</code> multicolor, the
+one that will let the underlying ghostbyte and background color shine
+through.</p>
+
+<p><img src="/assets/images/unexpanded-border-scroll/multicolor-expanded-a.png" alt="A without the ghostbyte" /></p>
+
+<p>If we apply the ghostbyte mask underneath the letter, it will shine through only on
+the blue areas of the <code class="language-plaintext highlighter-rouge">A</code>. If we use white color for the background color, we end up with
+a reasonably looking <code class="language-plaintext highlighter-rouge">A</code>:</p>
+
+<p><img src="/assets/images/unexpanded-border-scroll/multicolor-masked-a.png" alt="A with the ghostbyte mask" /></p>
+
+<p>We can now draw an entire font to take advantage of this technique:</p>
+
+<p><img src="/assets/images/unexpanded-border-scroll/abcd-gimp.png" alt="A b c" /></p>
+
+<p>Those are the first characters of the font from the intro, as they were drawn
+in gimp. This is the result as they are displayed with the ghostbyte
+shine-through and with background raster colors that change on every raster line:</p>
+
+<p><img src="/assets/images/unexpanded-border-scroll/abc-with-colors.png" alt="A b c with colors" /></p>
+
+<p>If we put all this together, we can create an unexpanded border scroll by
+drawing selected characters on 7 expanded sprites and moving them
+horizontally:</p>
+
+<p><img src="/assets/images/unexpanded-border-scroll/unexpanded-scroll.png" alt="Unexpanded border scroll" /></p>
+
+<p>To reveal what parts of each character use sprite multicolor and what parts
+use the background and ghostbyte shine-through, we can use two different
+colors. The picture below shows the sprite multicolor in red and the
+background colors in green. We can now see what parts of each character are
+sprite multicolor and where the background color and ghostbyte shine
+through.</p>
+
+<p><img src="/assets/images/unexpanded-border-scroll/ghostbyte-revealed.png" alt="Ghostbyte revealed" /></p>
+
+<h2 id="conclusions">Conclusions</h2>
+
+<p>Multicolor ghostbyte shine-through is a really neat way to produce what
+appears to be unexpanded graphics in the lower and upper borders. The trick
+has been used a few times over the years, but does not appear to be very
+widely adopted, possibly because of how difficult it is to figure out how it
+works. The trick uses the fact that the background color of a multicolor
+sprite lets the background + ghostbyte to shine through, allowing us to
+selectively use ghostbyte shine-through, even within individual characters.</p>
+
+<h2 id="acknowledgments">Acknowledgments</h2>
+
+<p>Many thanks to Cruzer and HCL for reading and commenting on early drafts of
+this paper. Also thanks to HCL for revealing how ghostbyte masking was used
+for the upscroll in Crest Avantgarde</p>
+
+<p>Orbit Untold credits:</p>
+<ul>
+  <li>Code + scroll font: trident</li>
+  <li>Music: Danko</li>
+  <li>Logo + font: tNG</li>
+</ul>
+
+	</div>
+</section>
+
+</div>
+
+    <!-- Footer -->
+	<footer id="footer">
+		<div class="inner">
+		</div>
+	</footer>
+
+</div>
+
+<!-- Scripts -->
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/jquery.scrolly.min.js"></script>
+	<script src="/assets/js/jquery.scrollex.min.js"></script>
+	<script src="/assets/js/skel.min.js"></script>
+	<script src="/assets/js/util.js"></script>
+	<!--[if lte IE 8]><script src="/assets/js/ie/respond.min.js"></script><![endif]-->
+	<script src="/assets/js/main.js"></script>
+
+
+</body>
+
+</html>
