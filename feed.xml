@@ -1,4 +1,357 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2026-03-14T08:58:41+00:00</updated><id>/feed.xml</id><title type="html">Trident’s C64 Demo Details</title><subtitle>All the Details from the Commore 64 Demos by Trident / Fairlight</subtitle><author><name>Trident</name><email>your.email@example.com</email></author><entry><title type="html">Anonymous IRQ Handlers</title><link href="/anonymous-irq-handlers/" rel="alternate" type="text/html" title="Anonymous IRQ Handlers" /><published>2026-03-13T10:00:00+00:00</published><updated>2026-03-13T10:00:00+00:00</updated><id>/anonymous-irq-handlers</id><content type="html" xml:base="/anonymous-irq-handlers/"><![CDATA[<p>Anonymous IRQ (Interrupt Request Handlers) is a technique for making Commodore 64 demo programming easier by making interrupt handlers sequential: your code will be neatly kept in one place and its structure makes it easy to understand exactly what it is doing.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2026-03-16T18:54:21+00:00</updated><id>/feed.xml</id><title type="html">Trident’s C64 Demo Details</title><subtitle>All the Details from the Commore 64 Demos by Trident / Fairlight</subtitle><author><name>Trident</name><email>your.email@example.com</email></author><entry><title type="html">A Simple Technique for Overlapping IRQ Handlers</title><link href="/overlapping-irq-handlers/" rel="alternate" type="text/html" title="A Simple Technique for Overlapping IRQ Handlers" /><published>2026-03-16T10:00:00+00:00</published><updated>2026-03-16T10:00:00+00:00</updated><id>/overlapping-irq-handlers</id><content type="html" xml:base="/overlapping-irq-handlers/"><![CDATA[<p>Overlapping IRQ handlers is a a neat trick that allow us to write long-running subroutines without worrying that they will interfere with our other raster interrupts.</p>
+
+<p>This article introduces a simple macro that allow us to do overlapping IRQ handlers so easily that they can be used for pretty much every long-running subroutine we call from our raster interrupts.</p>
+
+<p>There is a longer version of this in my talk at Fjälldata 2026:</p>
+
+<div style="text-align:center;">
+  <div style="position:relative; width:100%; max-width:560px; aspect-ratio:16/9; margin:0 auto;">
+    <iframe style="position:absolute; top:0; left:0; width:100%; height:100%;" src="https://www.youtube.com/embed/tqX42YoncaA?si=AHkTIA1IuXTG376m&amp;start=40" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+    </iframe>
+  </div>
+</div>
+
+<h2 id="rastertime-on-the-c64">Rastertime on the C64</h2>
+
+<p>On the C64, the CPU and the graphics chip (the <a href="https://en.wikipedia.org/wiki/MOS_Technology_VIC-II">VIC-II</a>) are in perfect synch. Each cycle, the CPU runs one cycle and the VIC chip runs one cycle. Sometimes the VIC chip needs to access memory and then it steals a few cycles from the CPU.</p>
+
+<p>This means that everything the CPU does can be measured in the time it takes to paint pixels on the screen. Each CPU cycle matches 8 pixels and every line of pixels corresponds to 63 cycles (unless there are cycled stolen by the VIC chip) – this is typically called one raster line.</p>
+
+<p>This is typically what we mean with <em>rastertime</em>: the time between two raster lines on the screen. Rastertime is typically measured in rasterlines. So if we say that a subroutine has a rastertime of 10 lines, that means that, roughly speaking, that the subroutine consumes some 630 cycles of CPU time.</p>
+
+<p>Rastertime can be visualized easily. By setting the border color to a different color before the subroutine is called and resetting it after the subroutine has returned, we get an immediate visual repressentation of that subroutine’s rastertime.</p>
+
+<p><img src="/assets/images/overlapping-irq-handlers/rastertime.png" alt="Raster time" title="The rastertime of a subroutine displayed by setting the border to a different color during the invocation of the subroutine" /></p>
+
+<p>The code for this, using <a href="/anonymous-irq-handlers/">anonymous IRQ handlers</a>, looks something like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irq:
+{
+    irq_wait_rasterline($80)
+    dec $d020
+    jsr subroutine
+    inc $d020
+
+    jmp irq
+}
+</code></pre></div></div>
+
+<h2 id="rastertime-between-interrupts">Rastertime Between Interrupts</h2>
+
+<p>Almost everything we do on the screen in a C64 demo has to be updated at 50 frames per second for it to look smooth. With 63 cycles per rasterline, and 312 rasterlines per frame, that gives us a total cycle budget of 19656 cycles per frame. On top to of that, we may lose a few thousand cycles because of the VIC chip stealing cycles (depending on how we tweak it at runtime).</p>
+
+<p>But, in addition to the total cycle budget, we often have to face another challenge: the rastertime between two interrupts. By default on the C64, when one interrupt is handled, other interrupts are blocked. Once we return from the interrupt handler, new interrupts can occur.</p>
+
+<p>In the pictures below, the red arrows indicate where a raster interrupt happens. In the left picture, the first raster interrupt is handled in good time before the second raster interrupt happens. This is fine: the first interrupt handlers will have returned, and re-enabled interrupts, before the second one occurs.</p>
+
+<p>But things are not as good in the right picture. Here, the second raster interrupt is scheduled to occur before the first one completed. This will result in a frame-skip: the second raster interrupt will happen on in the next frame.</p>
+
+<div class="image-gallery two-images">
+  <img src="/assets/images/overlapping-irq-handlers/rastertime2.png" alt="Two IRQ handlers spread out" />
+  <img src="/assets/images/overlapping-irq-handlers/rastertime3.png" alt="Two IRQ handlers too close together" />
+</div>
+
+<p>Frame-skips are the bane of every C64 demo programmer. They will appear as highly visble glitches on the screen and, because the music routine has to be called at exactly 50 Hz, there will be an audiable glitch as well. Horrible!</p>
+
+<p>We can solve this situation in several different ways:</p>
+<ol>
+  <li>Split the subroutine in the first interrupt handler into two chunks, and call the second chunk in the second interrupt handler.</li>
+  <li>Call the long-running subroutine from the main loop instead of from the interrupt handler.</li>
+  <li>Implement a multi-tasking mechanism.</li>
+  <li>Implement overlapping IRQ handlers.</li>
+</ol>
+
+<p>The talk in the video above goes into detail on how to do 1-3 in the list above. Here we will focus on number 4, overlapping IRQ handlers.</p>
+
+<h2 id="overlapping-irq-handlers">Overlapping IRQ Handlers</h2>
+
+<p>Overlapping IRQ handlers is a technique often used by C64 demo coders to avoid rastertime problems between interrupt handlers.</p>
+
+<p>This article presents a very simple implementation of overlapping IRQ handlers that adds no additional complexity to the code that is using it. Is so easy to use that it can be used widely, even in situations where there is plenty of rastertime available. This makes the resulting code much more flexible than it otherwise would have been: the called subroutines can now use as much rastertime as needed, without having to cater for them being called from an interrupt context.</p>
+
+<p>The overhead is very low: 12 bytes of memory and 19 cycles per usage.</p>
+
+<h3 id="how-overlapping-irq-handlers-work">How Overlapping IRQ Handlers Work</h3>
+
+<p>The idea is simple: inside the interrupt handler, set up the next raster interrupt, acknowledge the existing raster interrupt, then explicitly enable interrupts, before calling the subroutine you wish to call. The next raster interrupt will now take place on top of the subroutine, in case it has not yet completed.</p>
+
+<p>In case the subroutine had already completed, the effect will be exactly the same as when running with no overlapping IRQ handlers: the next raster interrupt handler will execute when its interrupt happens.</p>
+
+<p>The prereuisite for this technique is that we store and restore processor registers to the stack in our interrupt handlers. This ensures that they will be able to execute on top of each other.</p>
+
+<h3 id="handling-reentrancy-with-one-flag">Handling Reentrancy With One Flag</h3>
+
+<p>But there is one big problem that we need to solve before we can run overlapping IRQ handlers as our default mechanism: reentrancy. That is, what happens if our subroutine does not finish until its interrupt handler gets called again, on the next frame?</p>
+
+<p>If our subroutine gets called again on top of each other, two problems will happen:</p>
+<ul>
+  <li>We may run out of stack, if this happens over and over again.</li>
+  <li>The subroutine may fail completely, because its code was never intended to be called on top of itself.</li>
+</ul>
+
+<p>Both of these problems are difficult to debug. They will most likely result in a seemingly random crash because the stack overwrites itself or because of a seemingly random failure of the called subroutine.</p>
+
+<p>Fortunately, there is an easy fix for this problem. For every overlapping IRQ handler, we keep a flag that signals if the subroutine is currently being called. If it is already called, we avoid calling it on top of itself.</p>
+
+<p>We can even save memory by encoding this flag as self-modifying code inside the calling code.</p>
+
+<h3 id="the-code">The Code</h3>
+
+<p>All of this can now be nearly implemented as a new macro, in addition to our <a href="/anonymous-irq-handlers/">anonymous IRQ handlers</a>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>.macro irq_call_wait_rasterline(subroutine, rasterline) {
+   irq_setup(next, rasterline)
+
+    // This is the flag that indicates if the subroutine has been called or not:
+running: lda #0
+    // If we have already called this subroutine, we will not call it again now
+    bne dont_call
+
+    // Set the flag so that any subsequent invokations will avoid calling the subroutine
+    inc running + 1
+
+    // Acknowledge the raster interrupt with the VIC
+    inc $d019
+
+    // Enable IRQs for the CPU
+    cli
+
+    // Call the subroutine - this call may take a very long time
+    jsr subroutine
+
+    // Once the subroutine is done, we reset the flag again
+    lda #0
+    sta running + 1
+dont_call:
+    // We exit the interrupt handler here, 
+    // both if we called the subroutine, or if we skipped it
+    irq_leave()
+next:
+    // We will arrive here because of the raster intterupt on the line given by rasterline
+    irq_enter()
+}
+</code></pre></div></div>
+
+<p>That’s it! Not quite as neat as the <a href="/anonymous-irq-handlers/">anonymous IRQ handlers</a>, but reasonably self-explanatory.</p>
+
+<p>Now let’s take a look at how to use this. Let’s say we want to call three subroutines, which we might call <code class="language-plaintext highlighter-rouge">red</code>, <code class="language-plaintext highlighter-rouge">green</code>, and <code class="language-plaintext highlighter-rouge">blue</code>, on given places on the screen. We simply implement our IRQ code like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irq:
+{
+    irq_wait_rasterline($18)
+
+    // We are now at rasterline $18, call red and wait until rasterline $64
+    irq_call_wait_rasterline(red, $64)
+
+    // We are now at rasterline $64, call green and wait until rasterline $b0
+    irq_call_wait_rasterline(green, $b0)
+
+    // We are now at rasterline $64, call blue and wait until rasterline $ff
+    irq_call_wait_rasterline(blue, $ff)
+
+    // We are now at rasterline $ff
+
+    jmp irq
+}
+</code></pre></div></div>
+
+<p>This will result in the following screen:</p>
+
+<p><img src="/assets/images/overlapping-irq-handlers/rgb.png" alt="Overlapping IRQ handlers" title="Three subroutines, red, green, and blue, are called with overlapping IRQ handlers" /></p>
+
+<p>In this case, the subroutines did not actually end up overlap each other at all. But if we slightly change the raster lines, we get a different picture:</p>
+
+<p><img src="/assets/images/overlapping-irq-handlers/rgb2.png" alt="Overlapping IRQ handlers" title="Three subroutines, red, green, and blue, are called with overlapping IRQ handlers" /></p>
+
+<p>Here we see the <code class="language-plaintext highlighter-rouge">green</code> subroutine interrupting the <code class="language-plaintext highlighter-rouge">red</code> one. Then <code class="language-plaintext highlighter-rouge">green</code> is itself interrupted by the <code class="language-plaintext highlighter-rouge">blue</code> subroutine. When the <code class="language-plaintext highlighter-rouge">blue</code> subroutine finishes, we see <code class="language-plaintext highlighter-rouge">green</code> continue until it is done. Then <code class="language-plaintext highlighter-rouge">red</code> will finally get the CPU back and can continue until it is finished.</p>
+
+<p>In this example we also see another sideeffect of overlapping IRQ handlers: we have an ordering of priority. The subroutine that gets called first has to wait for the overones to finish.</p>
+
+<h2 id="whe-to-use-overlapping-irq-handlers">Whe to use Overlapping IRQ Handlers</h2>
+
+<p>Because of the easy-to-use macro, overlapping IRQ handlers can be used pretty much every time you need to call a potentially long running subroutine from an interrupt handler.</p>
+
+<p>Myself, I use them all the time, making me worry way less about rastertime than I used to do. See the talk for a few examples.</p>
+
+<h2 id="the-full-source-code">The Full Source Code</h2>
+
+<p>For reference, here is the full source code for this (in Kickasm format):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>.macro irq_setup(irqhandler, rasterline) {
+    lda #rasterline
+    sta $d012 // Set the low 8 bits of the rasterline in $d012
+    lda $d011 // Set the 9th bit of the rasterline in the 8th bit of $d011
+    .if (rasterline &lt; $100) {
+        and #$7f
+    } else {
+        ora #$80
+    }
+    sta $d011
+
+    lda #&lt;irqhandler
+    sta $fffe
+    lda #&gt;irqhandler
+    sta $ffff // Set the interrupt handler address
+}
+.macro irq_enter() {
+    pha
+    txa
+    pha
+    tya
+    pha  // Store registers on the stack
+}
+.macro irq_leave() {
+    inc $d019 // Acknowledge the raster interrupt
+
+    pla
+    tay
+    pla
+    tax
+    pla  // Restore processor registers from the stack
+    rti  // Return from interrupt
+}
+
+.macro irq_wait_rasterline(rasterline) {
+    irq_setup(anonymous, rasterline)
+    irq_leave()
+anonymous:
+    irq_enter()
+}
+
+
+.macro irq_call_wait_rasterline(subroutine, rasterline) {
+   irq_setup(next, rasterline)
+
+running: lda #0
+    bne dont_call
+    inc running + 1
+    inc $d019
+    cli
+    jsr subroutine
+    lda #0
+    sta running + 1
+dont_call:
+    irq_leave()
+next:
+    irq_enter()
+}
+
+    * = $0801
+    BasicUpstart(start)
+
+    * = $0810
+start:
+{
+    lda #$7f
+    sta $dc0d // Turn off timer interrupts
+    lda $dc0d // Acknowledge any lingering timer interrupt
+
+    sei       // Disable interrupts while we work on the interrupt settings
+
+    lda #$35
+    sta $01   // Turn off ROM
+
+    lda #$01
+    sta $d01a // Enable raster interrupts
+
+    irq_setup(trampoline, 0) // Set up our trampoline interrupt at the top of the screen
+
+    cli       // Enable interrupts
+
+              // Here we could load the next part, but for now, just do an
+    jmp *     // infinite loop - the interrupt handlers drive everything now
+
+trampoline:
+{
+    irq_enter()
+    jmp irq
+}
+}
+
+irq:
+{
+    irq_wait_rasterline($18)
+
+    lda #0
+    sta $d011
+
+    irq_call_wait_rasterline(red, $64)
+
+    irq_call_wait_rasterline(green, $b0)
+
+    irq_call_wait_rasterline(blue, $ff)
+
+    jmp irq
+}
+
+red:
+{
+    lda $d020
+    pha
+    lda #2
+    sta $d020
+    ldx #0
+!:
+    {
+        ldy #14
+    !:
+        dey
+        bpl !-
+    }
+    inx
+    cpx #40
+    bne !-
+    pla
+    sta $d020
+    rts
+}
+
+
+green:
+{
+    lda $d020
+    pha
+    lda #5
+    sta $d020
+    ldx #0
+!:
+    {
+        ldy #14
+    !:
+        dey
+        bpl !-
+    }
+    inx
+    cpx #40
+    bne !-
+    pla
+    sta $d020
+    rts
+}
+
+
+blue:
+{
+    lda $d020
+    pha
+    lda #6
+    sta $d020
+    ldx #0
+!:
+    {
+        ldy #14
+    !:
+        dey
+        bpl !-
+    }
+    inx
+    cpx #40
+    bne !-
+    pla
+    sta $d020
+    rts
+}
+</code></pre></div></div>]]></content><author><name>Trident</name></author><summary type="html"><![CDATA[Overlapping IRQ handlers is a a neat trick that allow us to write long-running subroutines without worrying that they will interfere with our other raster interrupts.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="/assets/images/overlapping-irq-handlers/rastertime3.png" /><media:content medium="image" url="/assets/images/overlapping-irq-handlers/rastertime3.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Anonymous IRQ Handlers</title><link href="/anonymous-irq-handlers/" rel="alternate" type="text/html" title="Anonymous IRQ Handlers" /><published>2026-03-13T10:00:00+00:00</published><updated>2026-03-13T10:00:00+00:00</updated><id>/anonymous-irq-handlers</id><content type="html" xml:base="/anonymous-irq-handlers/"><![CDATA[<p>Anonymous IRQ (Interrupt Request Handlers) is a technique for making Commodore 64 demo programming easier by making interrupt handlers sequential: your code will be neatly kept in one place and its structure makes it easy to understand exactly what it is doing.</p>
 
 <p>I developed this technique after struggling with messy interrupt handlers for some 30+ years. And it made C64 programming so much more fun, because I no longer have to think about low-level details.</p>
 
